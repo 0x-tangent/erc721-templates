@@ -2,13 +2,13 @@
 
 source .sethrc
 
-function mynft_deploy()
+function comfyclouds_deploy()
 {
   file_addresses=./scripts/addresses.json
   dapp build
-  dapp create MyNft '"ipfs://BASE_URI/"'
-  ADDRESS_MYNFT=$(getContractAddress)
-  echo "{ \"nft\": \"$ADDRESS_MYNFT\" }" > $file_addresses
+  dapp create ComfyClouds '"ipfs://BASE_URI/"'
+  ADDRESS_COMFYCLOUDS=$(getContractAddress)
+  echo "{ \"clouds\": \"$ADDRESS_COMFYCLOUDS\" }" > $file_addresses
 }
 
-mynft_deploy "$@"
+comfyclouds_deploy "$@"

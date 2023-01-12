@@ -2,11 +2,11 @@
 # .sethrc for dapptools, and some helper functions. all below are local testnet addresses
 
 export DAPP_SOLC_VERSION=0.8.6
-
-# uncomment to debug tests
 # export DAPP_TEST_VERBOSITY=2
 
-export ETH_KEYSTORE="$HOME/.dapp/testnet/8545/keystore"
+[ -f ./.secrets ] && source ./.secrets
+
+export ETH_KEYSTORE="/home/ghostlapdev/.dapp/testnet/8545/keystore"
 export ETH_RPC_ACCOUNTS=yes
 export ETH_GAS=99999999
 
@@ -33,10 +33,10 @@ function getContractAddress()
 
 ADDY=""
 
-export aa=0x0000000000000000000000000000000000000000
-export bb=0x0000000000000000000000000000000000000000
-export cc=0x0000000000000000000000000000000000000000
-export dd=0x0000000000000000000000000000000000000000
+export aa=0x26a6b582ee53faa9d2be1c5e0504f44e5380cc11
+export bb=0x2ac04213033c8ceb10e6cd0c8d359c3c54079228
+export cc=0x69e97bd11115152ac2c6228a489b2c0b94166d6e
+export dd=0x8305414402b6c9e70876bd31e7e6917adea2645e
 
 export ETH_FROM="$aa"
 
