@@ -1,0 +1,16 @@
+#!/bin/bash
+
+export DAPP_REMAPPINGS=$(cat remappings.txt)
+export DAPP_LINK_TEST_LIBRARIES=0
+
+# replace localhost with testnet/mainnet RPC as necessary
+export ETH_RPC_URL=http://localhost:8545
+
+export DAPP_BUILD_OPTIMIZE=1
+export DAPP_BUILD_OPTIMIZE_RUNS=200
+
+export ETH_GAS=4200000
+
+# load secrets, if available
+[ -f ./.secrets/.env ] && source ./.secrets/.env
+# export ETHERSCAN_API_KEY=''    <- set this in .secrets/.env

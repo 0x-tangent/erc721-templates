@@ -1,0 +1,57 @@
+#!/bin/bash
+# .sethrc for dapptools, and some helper functions. all below are local testnet addresses
+
+export DAPP_SOLC_VERSION=0.8.6
+
+# uncomment to debug tests
+# export DAPP_TEST_VERBOSITY=2
+
+export ETH_KEYSTORE="$HOME/.dapp/testnet/8545/keystore"
+export ETH_RPC_ACCOUNTS=yes
+export ETH_GAS=99999999
+
+function lastTx()
+{
+  seth block latest transactions | jq .[0] -r
+}
+
+function setContractAddress()
+{
+  sed -i 's/^export ADDY=.*//' .sethrc
+  local new_address="$(seth receipt $(lastTx) contractAddress)"
+  printf 'export ADDY=%s\n' "$new_address" >> .sethrc
+  source .sethrc
+  echo "$new_address"
+}
+
+function getContractAddress()
+{
+  sed -i 's/^export ADDY=.*//' .sethrc
+  seth receipt $(lastTx) contractAddress
+}
+
+
+ADDY=""
+
+export aa=0x0000000000000000000000000000000000000000
+export bb=0x0000000000000000000000000000000000000000
+export cc=0x0000000000000000000000000000000000000000
+export dd=0x0000000000000000000000000000000000000000
+
+export ETH_FROM="$aa"
+
+function address()
+{
+  file_addresses=./scripts/addresses.json
+  [ -z "$1" ] && jq keys $file_addresses && return 0
+  [ "$1" == "ls" ] && jq keys $file_addresses && return 0
+
+  jq -r ".${1}" $file_addresses
+}
+
+function ls_contracts()
+{
+  [ ! -f './out/dapp.sol.json' ] && printf "no ./out dir found! are you in your project's root directory?\n" && return 0
+  jq '.contracts' out/dapp.sol.json | jq keys
+}
+

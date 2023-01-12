@@ -1,1 +1,9 @@
+# dapptools/foundry
 /out
+
+# vim
+.*.sw*
+
+
+# secrets
+**/.secrets/*
