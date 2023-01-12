@@ -109,9 +109,9 @@ def main():
     if not uri.endswith('/'):
         uri += '/'
     
-    attributes = lib.read_csv(args.attributes)
+    attributes = read_csv(args.attributes)
 
-    lib.generate_metadata(name, description, uri, attributes)
+    generate_metadata(name, description, uri, attributes)
 
 
 if __name__ == '__main__':
