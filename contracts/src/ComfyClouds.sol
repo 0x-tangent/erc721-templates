@@ -35,7 +35,7 @@ contract ComfyClouds is ERC721, Ownable {
   //  CONSTRUCTOR
   //---------------------------------------------------------------
 
-  constructor(string memory _coverURI) ERC721("ComfyClouds", "MINE") {
+  constructor(string memory _coverURI) ERC721("ComfyClouds", "CCC") {
     coverURI = _coverURI;
   }
 
