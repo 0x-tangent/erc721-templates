@@ -1,7 +1,8 @@
 #!/bin/bash
 # .sethrc for dapptools, and some helper functions. all below are local testnet addresses
 
-export DAPP_SOLC_VERSION=0.8.6
+# export DAPP_SOLC_VERSION=0.8.6
+export DAPP_SOLC_VERSION=0.8.17
 # export DAPP_TEST_VERBOSITY=2
 
 [ -f ./.secrets ] && source ./.secrets
