@@ -410,7 +410,7 @@ contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Enumerable 
 }
 
 
-contract ComfyClouds is ERC721, Ownable {
+contract CloudPasses is ERC721, Ownable {
 
   //---------------------------------------------------------------
   //  CONSTANTS
@@ -440,7 +440,7 @@ contract ComfyClouds is ERC721, Ownable {
   //  CONSTRUCTOR
   //---------------------------------------------------------------
 
-  constructor(string memory _coverURI) ERC721("ComfyClouds", "CCC") {
+  constructor(string memory _coverURI) ERC721("CloudPasses", "CLOUDS") {
     coverURI = _coverURI;
     owners.push(address(0x0)); // owners[0] == 0x0 to start id count at 1
     burnedTokens += 1;

@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import { DSTest } from "ds-test/test.sol";
 
-import "../ComfyClouds.sol";
+import "../CloudPasses.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 
 abstract contract Hevm {
@@ -13,9 +13,9 @@ abstract contract Hevm {
 
 contract User is ERC721Holder {
 
-  ComfyClouds comfyClouds;
-  constructor(ComfyClouds _comfyClouds) {
-    comfyClouds = _comfyClouds;
+  CloudPasses cloudPasses;
+  constructor(CloudPasses _cloudPasses) {
+    cloudPasses = _cloudPasses;
   }
 
   function mint(uint amount) public {
@@ -26,33 +26,33 @@ contract User is ERC721Holder {
     _mint(amount, eth);
   }
   function _mint(uint amount, uint eth) internal {
-    comfyClouds.mint{ value: eth }(amount);
+    cloudPasses.mint{ value: eth }(amount);
   }
   function transfer(address to, uint256 tokenId) public {
     transferFor(address(this), to, tokenId);
   }
   function transferFor(address from, address to, uint256 tokenId) public {
-    comfyClouds.transferFrom(from, to, tokenId);
+    cloudPasses.transferFrom(from, to, tokenId);
   }
   function approve(address to, uint256 tokenId) public {
-    comfyClouds.approve(to, tokenId);
+    cloudPasses.approve(to, tokenId);
   }
   function approveAll(address to, bool isApproved) public {
-    comfyClouds.setApprovalForAll(to, isApproved);
+    cloudPasses.setApprovalForAll(to, isApproved);
   }
   function burn(uint256 tokenId) public {
-    comfyClouds.burn(tokenId);
+    cloudPasses.burn(tokenId);
   }
 
   function setBaseURI(string memory uri) public {
-    comfyClouds.setBaseURI(uri);
+    cloudPasses.setBaseURI(uri);
   }
   function setIsRevealed(bool isRevealed) public {
-    comfyClouds.setIsRevealed(isRevealed);
+    cloudPasses.setIsRevealed(isRevealed);
   }
 
   function withdraw(address to, uint amount) public {
-    comfyClouds.withdraw(to, amount);
+    cloudPasses.withdraw(to, amount);
   }
 
   function receivePayment() public payable {}
@@ -62,8 +62,8 @@ contract User is ERC721Holder {
   }
 }
 
-contract ComfyCloudsTest is DSTest {
-  ComfyClouds comfyClouds;
+contract CloudPassesTest is DSTest {
+  CloudPasses cloudPasses;
   User userA;
   User userB;
   User userC;
@@ -74,11 +74,11 @@ contract ComfyCloudsTest is DSTest {
   string  constant COVER_URI = "ipfs://COVER_URI";
 
   function setUp() public {
-    comfyClouds = new ComfyClouds(COVER_URI);
-    userA = new User(comfyClouds);
-    userB = new User(comfyClouds);
-    userC = new User(comfyClouds);
-    userNoFunds = new User(comfyClouds);
+    cloudPasses = new CloudPasses(COVER_URI);
+    userA = new User(cloudPasses);
+    userB = new User(cloudPasses);
+    userC = new User(cloudPasses);
+    userNoFunds = new User(cloudPasses);
     uint256 eth = 100 ether;
     userA.deposit{value: eth}();
     userB.deposit{value: eth}();
@@ -87,7 +87,7 @@ contract ComfyCloudsTest is DSTest {
 
   function testMintOne() public {
     userA.mint(1);
-    uint256 balance = comfyClouds.balanceOf(address(userA));
+    uint256 balance = cloudPasses.balanceOf(address(userA));
     assertEq(1, balance);
   }
   function testFailMintOne_NoEth() public {
@@ -98,13 +98,13 @@ contract ComfyCloudsTest is DSTest {
   }
   function testMintTwo() public {
     userA.mint(2);
-    uint256 balance = comfyClouds.balanceOf(address(userA));
+    uint256 balance = cloudPasses.balanceOf(address(userA));
     assertEq(2, balance);
   }
   function testMintTwoSequentially() public {
     userA.mint(1);
     userA.mint(1);
-    uint256 balance = comfyClouds.balanceOf(address(userA));
+    uint256 balance = cloudPasses.balanceOf(address(userA));
     assertEq(2, balance);
   }
   function testFailMintThree() public {
@@ -113,11 +113,11 @@ contract ComfyCloudsTest is DSTest {
   function testBurnAdjustsUserBalance() public {
     userA.mint(2);
 
-    uint256 balance1 = comfyClouds.balanceOf(address(userA));
+    uint256 balance1 = cloudPasses.balanceOf(address(userA));
     assertEq(balance1, 2);
     userA.burn(1);
 
-    uint256 balance2 = comfyClouds.balanceOf(address(userA));
+    uint256 balance2 = cloudPasses.balanceOf(address(userA));
     assertEq(balance2, 1);
   }
 
@@ -125,22 +125,22 @@ contract ComfyCloudsTest is DSTest {
     userA.mint(2);
     userB.mint(1);
     userC.mint(1);
-    uint256 postMintSupply = comfyClouds.totalSupply();
+    uint256 postMintSupply = cloudPasses.totalSupply();
     assertEq(postMintSupply, 4);
 
     userA.burn(1);
     userC.burn(4);
 
-    uint256 postBurnSupply = comfyClouds.totalSupply();
+    uint256 postBurnSupply = cloudPasses.totalSupply();
     assertEq(postBurnSupply, 2);
   }
 
   function testBurnedTokensAreOneWithNoBurns() public {
-    assertEq(comfyClouds.burnedTokens(), 1);
+    assertEq(cloudPasses.burnedTokens(), 1);
     userA.mint(1);
-    assertEq(comfyClouds.burnedTokens(), 1);
+    assertEq(cloudPasses.burnedTokens(), 1);
     userA.burn(1);
-    assertEq(comfyClouds.burnedTokens(), 2);
+    assertEq(cloudPasses.burnedTokens(), 2);
   }
 
   function testFailBurnWithZeroOwned() public {
@@ -157,46 +157,46 @@ contract ComfyCloudsTest is DSTest {
     userB.mint(1);
     userC.mint(1);
     userC.transfer(address(userA), 3);
-    assertEq(comfyClouds.balanceOf(address(userA)), 2);
-    assertEq(comfyClouds.owners(1), address(userA));
-    assertEq(comfyClouds.owners(2), address(userB));
-    assertEq(comfyClouds.owners(3), address(userA));
+    assertEq(cloudPasses.balanceOf(address(userA)), 2);
+    assertEq(cloudPasses.owners(1), address(userA));
+    assertEq(cloudPasses.owners(2), address(userB));
+    assertEq(cloudPasses.owners(3), address(userA));
 
     userA.burn(1);
 
-    assertEq(comfyClouds.balanceOf(address(userA)), 1);
-    assertEq(comfyClouds.owners(1), address(0));
-    assertEq(comfyClouds.owners(2), address(userB));
-    assertEq(comfyClouds.owners(3), address(userA));
+    assertEq(cloudPasses.balanceOf(address(userA)), 1);
+    assertEq(cloudPasses.owners(1), address(0));
+    assertEq(cloudPasses.owners(2), address(userB));
+    assertEq(cloudPasses.owners(3), address(userA));
   }
 
   function testBurnAndTokenOfOwnerByIndexPreservesOwnership() public {
     userA.mint(1);
     userB.mint(1);
     userB.transfer(address(userA), 2);
-    assertEq(comfyClouds.tokenOfOwnerByIndex(address(userA), 0), 1);
-    assertEq(comfyClouds.tokenOfOwnerByIndex(address(userA), 1), 2);
-    assertEq(comfyClouds.balanceOf(address(userA)), 2);
+    assertEq(cloudPasses.tokenOfOwnerByIndex(address(userA), 0), 1);
+    assertEq(cloudPasses.tokenOfOwnerByIndex(address(userA), 1), 2);
+    assertEq(cloudPasses.balanceOf(address(userA)), 2);
 
     userA.burn(2);
-    assertEq(comfyClouds.balanceOf(address(userA)), 1);
-    assertEq(comfyClouds.tokenOfOwnerByIndex(address(userA), 0), 1);
+    assertEq(cloudPasses.balanceOf(address(userA)), 1);
+    assertEq(cloudPasses.tokenOfOwnerByIndex(address(userA), 0), 1);
   }
 
   function testFailTokenOfOwnerByIndex() public {
     userA.mint(1);
-    comfyClouds.tokenOfOwnerByIndex(address(userA), 2);
+    cloudPasses.tokenOfOwnerByIndex(address(userA), 2);
   }
 
   function testTransferToUserB() public {
     userA.mint(1);
-    assertEq(comfyClouds.ownerOf(1), address(userA));
-    assertEq(comfyClouds.balanceOf(address(userA)), 1);
-    assertEq(comfyClouds.balanceOf(address(userB)), 0);
+    assertEq(cloudPasses.ownerOf(1), address(userA));
+    assertEq(cloudPasses.balanceOf(address(userA)), 1);
+    assertEq(cloudPasses.balanceOf(address(userB)), 0);
     userA.transfer(address(userB), 1);
-    assertEq(comfyClouds.ownerOf(1), address(userB));
-    assertEq(comfyClouds.balanceOf(address(userA)), 0);
-    assertEq(comfyClouds.balanceOf(address(userB)), 1);
+    assertEq(cloudPasses.ownerOf(1), address(userB));
+    assertEq(cloudPasses.balanceOf(address(userA)), 0);
+    assertEq(cloudPasses.balanceOf(address(userB)), 1);
   }
 
   function testFailTransferWithoutApproval() public {
@@ -208,8 +208,8 @@ contract ComfyCloudsTest is DSTest {
     userA.mint(1);
     userA.approve(address(userB), 1);
     userB.transferFor(address(userA), address(userC), 1);
-    assertEq(comfyClouds.balanceOf(address(userA)), 0);
-    assertEq(comfyClouds.balanceOf(address(userC)), 1);
+    assertEq(cloudPasses.balanceOf(address(userA)), 0);
+    assertEq(cloudPasses.balanceOf(address(userC)), 1);
   }
   function testFailApproveForUnownedToken() public {
     userA.mint(1);
@@ -239,43 +239,43 @@ contract ComfyCloudsTest is DSTest {
   }
 
   function testBaseUriNotSetAtDeploy() public {
-    string memory contractUri = comfyClouds.baseURI();
+    string memory contractUri = cloudPasses.baseURI();
     assertEq(contractUri, "");
   }
   function testTokenUriReturnsValueAfterReveal() public {
     userA.mint(1);
 
-    comfyClouds.setBaseURI("ipfs://BASE/");
-    comfyClouds.setIsRevealed(true);
-    string memory tokenURI = comfyClouds.tokenURI(1);
+    cloudPasses.setBaseURI("ipfs://BASE/");
+    cloudPasses.setIsRevealed(true);
+    string memory tokenURI = cloudPasses.tokenURI(1);
     assertEq(tokenURI, "ipfs://BASE/1.json");
   }
   function testTokenUriReturnsCoverUriBeforeReveal() public {
     userA.mint(1);
 
-    string memory tokenURI = comfyClouds.tokenURI(1);
+    string memory tokenURI = cloudPasses.tokenURI(1);
     assertEq(tokenURI,COVER_URI);
   }
   function testTokenUriReturnBaseUriAfterReveal() public {
     userA.mint(1);
-    comfyClouds.setBaseURI(BASE_URI);
-    comfyClouds.setIsRevealed(true);
-    string memory tokenURI = comfyClouds.tokenURI(1);
+    cloudPasses.setBaseURI(BASE_URI);
+    cloudPasses.setIsRevealed(true);
+    string memory tokenURI = cloudPasses.tokenURI(1);
     assertEq(tokenURI, "ipfs://BASE_URI/1.json");
   }
   function testOwnerCanSetBaseUri() public {
     string memory uri = "ipfs://BASE/";
-    comfyClouds.setBaseURI(uri);
+    cloudPasses.setBaseURI(uri);
 
-    string memory contractUri = comfyClouds.baseURI();
+    string memory contractUri = cloudPasses.baseURI();
     assertEq(contractUri, uri);
   }
   function testFailSetBaseUri_NotOwner() public {
     userA.setBaseURI("ipfs://FAIL/");
   }
   function testOwnerCanSetIsRevealed() public {
-    comfyClouds.setIsRevealed(true);
-    bool isRevealed = comfyClouds.isRevealed();
+    cloudPasses.setIsRevealed(true);
+    bool isRevealed = cloudPasses.isRevealed();
     assertTrue(isRevealed);
   }
   function testFailSetIsRevealed_NotOwner() public {
@@ -289,21 +289,21 @@ contract ComfyCloudsTest is DSTest {
 
   function mintFullSupply() internal {
     for (uint i = 0; i < 50; ++i) {
-      User minter = new User(comfyClouds);
+      User minter = new User(cloudPasses);
       minter.deposit{value: 1 ether}();
       minter.mint(2);
     }
   }
   function testMintFullSupply() public {
     mintFullSupply();
-    assertEq(comfyClouds.totalSupply(), 100);
+    assertEq(cloudPasses.totalSupply(), 100);
   }
   function testMintFullSupply_ReturnsURIforToken100() public {
     mintFullSupply();
-    comfyClouds.setBaseURI(BASE_URI);
-    comfyClouds.setIsRevealed(true);
+    cloudPasses.setBaseURI(BASE_URI);
+    cloudPasses.setIsRevealed(true);
     string memory expectedUri = "ipfs://BASE_URI/100.json";
-    string memory tokenUri = comfyClouds.tokenURI(100);
+    string memory tokenUri = cloudPasses.tokenURI(100);
     assertEq(tokenUri, expectedUri);
   }
   function testFailMintFullSupply_Plus1() public {
@@ -313,21 +313,21 @@ contract ComfyCloudsTest is DSTest {
 
   event OwnerAddy(address);
   function testWithdrawSucceeds() public {
-    uint contractStartingBalance = address(comfyClouds).balance;
+    uint contractStartingBalance = address(cloudPasses).balance;
     mintFullSupply();
-    uint contractEndingBalance = address(comfyClouds).balance;
+    uint contractEndingBalance = address(cloudPasses).balance;
 
     uint contractExpectedBalance = contractStartingBalance + 2 ether;
     assertEq(contractEndingBalance, contractExpectedBalance);
 
     address receiverAddress = address(0x123);
     uint receiverStartingBalance = receiverAddress.balance;
-    comfyClouds.withdraw(receiverAddress, 2 ether);
+    cloudPasses.withdraw(receiverAddress, 2 ether);
     uint receiverEndingBalance = receiverAddress.balance;
     uint receiverExpectedBalance = receiverStartingBalance + 2 ether;
     assertEq(receiverEndingBalance, receiverExpectedBalance);
 
-    uint finalContractBalance = address(comfyClouds).balance;
+    uint finalContractBalance = address(cloudPasses).balance;
     assertEq(contractStartingBalance, finalContractBalance);
   }
 }
