@@ -442,10 +442,16 @@ contract ComfyClouds is ERC721, Ownable {
 
   constructor(string memory _coverURI) ERC721("ComfyClouds", "CCC") {
     coverURI = _coverURI;
+    owners.push(address(0x0)); // owners[0] == 0x0 to start id count at 1
+    burnedTokens += 1;
   }
 
+  uint public constant MINT_PRICE = 0.02 ether;
+
+  event MintId(uint);
   function mint(uint amount) public payable {
     require(owners.length < MAX_SUPPLY, "MAX_SUPPLY");
+    require(msg.value == MINT_PRICE * amount, "WRONG_ETH_AMT");
 
     minters[msg.sender] += amount;
     require(minters[msg.sender] <= MAX_PER_WALLET, "MAX_TWO_PER_WALLET");

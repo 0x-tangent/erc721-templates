@@ -56,3 +56,4 @@ function ls_contracts()
   jq '.contracts' out/dapp.sol.json | jq keys
 }
 
+
